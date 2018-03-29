@@ -64,6 +64,26 @@ functions:
           path: hello/world
           method: get
 
+resources:
+  Resources:
+    eventTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: eventTable
+        AttributeDefinitions:
+          - AttributeName: timestamp
+            AttributeType: S
+          - AttributeName: timestampSorted
+            AttributeType: S
+        KeySchema:
+          - AttributeName: timestamp
+            KeyType: HASH
+          - AttributeName: timestampSorted
+            KeyType: RANGE  
+        ProvisionedThroughput:
+          ReadCapacityUnits: 100
+          WriteCapacityUnits: 100
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
