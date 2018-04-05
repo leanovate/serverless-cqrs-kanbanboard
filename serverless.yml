@@ -74,3 +74,14 @@ resources:
           WriteCapacityUnits: 2
         StreamSpecification:
           StreamViewType: NEW_IMAGE
+
+    ReadCache:
+      Type: AWS::ElastiCache::CacheCluster
+      Properties:
+        AutoMinorVersionUpgrade: true
+        ClusterName: ReadCache
+        Engine: redis
+        NumCacheNodes: 1
+        CacheNodeType: cache.t2.micro
+        VpcSecurityGroupIds: 
+          - sg-d92e9bb4
