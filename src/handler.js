@@ -64,4 +64,42 @@ module.exports.db = (event, context, callback) => {
 
 module.exports.logdb = (event, context, callback) => {
     console.log(JSON.stringify(event));
+    console.log("id: " + event.Records[0].dynamodb.NewImage.id.S);
 };
+
+module.exports.projection = (event, context, callback) => {
+  let client;
+  try {
+    client = require('redis').createClient(6379, 'readcache.cg0t9q.0001.euc1.cache.amazonaws.com', {no_ready_check: true});
+    console.log("Connection to Redis with client was successfull");
+
+    const response = {
+      statusCode: 200,
+      body: "Connection to Redis with client was successfull",
+    };
+    callback(null, response);
+  } catch(e) {
+    console.error("Cannot connect to Redis with client");
+    console.error(e);
+      
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify(e),
+    };
+    callback(null, response);
+
+  }
+
+//  const body = event.Records[0].dynamodb.NewImage;
+//  const key = body.id.S;
+//
+//  client.set(key, JSON.stringify(body), (error) => {
+//    // handle potential errors
+//    if (error) {
+//      console.error(error);
+//      return;
+//    }
+//
+//      console.log(`Projected into view cache key: ${key} body: ${JSON.stringify(body)}`);
+//  });
+}

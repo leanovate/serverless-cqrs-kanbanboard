@@ -27,6 +27,21 @@ provider:
           - EventTable
           - StreamArn
 
+package:
+  individually: true
+  excludeDevDependencies: false
+  exclude:
+    - README*
+    - src/**
+    - package*
+  include:
+    - node_modules/redis/
+    - src/handler.js
+
+custom:
+  webpack:
+    includeModules: true
+
 functions:
   hello:
     handler: src/handler.hello
@@ -51,12 +66,30 @@ functions:
                 Fn::GetAtt:
                   - EventTable
                   - StreamArn
+  projection:
+    handler: src/handler.projection
+    events:
+        - http:
+            path: project
+            method: get
+        - stream:
+            type: dynamodb
+            batchSize: 20
+            startingPosition: TRIM_HORIZON
+            arn:
+                Fn::GetAtt:
+                  - EventTable
+                  - StreamArn
+    vpc:
+      securityGroupIds:
+        - sg-d92e9bb4
+      subnetIds:
+        - subnet-bd8f31c0
+        - subnet-9c0746f7
+        - subnet-76ef713b
 
 plugins:
   - serverless-webpack
-
-package:
-  individually: true
 
 resources:
   Resources:
