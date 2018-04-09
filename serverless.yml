@@ -52,6 +52,12 @@ functions:
                   - EventTable
                   - StreamArn
 
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
 resources:
   Resources:
     EventTable:
