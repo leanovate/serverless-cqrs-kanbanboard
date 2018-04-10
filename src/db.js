@@ -15,7 +15,7 @@ module.exports.db = (event, context, callback) => {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     const params = {
-        TableName: process.env.DYNAMODB_TABLE,
+        TableName: process.env.DYNAMODB_TABLE_EVENTS,
         Item: {
             id: uuid.v1(),
             text: text,
