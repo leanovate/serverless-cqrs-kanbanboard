@@ -52,12 +52,6 @@ custom:
   webpackIncludeModules:  true # enable auto-packing of external modules
 
 functions:
-  hello:
-    handler: src/lambda-handlers/handler.hello
-    events:
-      - http:
-          path: "api/${env:API_PATH, self:custom.api.apiPath}"
-          method: get
   db:
     handler: src/lambda-handlers/db.db
     events:
