@@ -6,6 +6,10 @@ provider:
   region: eu-central-1
   environment:
     DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}-1
+    REDIS_HOST:
+      "Fn::GetAtt": [ServerlessElasticacheCluster, RedisEndpoint.Address]
+    REDIS_PORT:
+      "Fn::GetAtt": [ServerlessElasticacheCluster, RedisEndpoint.Port]
     REDIS_ENDPOINT:
       "Fn::Join": [":", ["Fn::GetAtt": [ServerlessElasticacheCluster, RedisEndpoint.Address], "Fn::GetAtt": [ServerlessElasticacheCluster, RedisEndpoint.Port]]]
 
@@ -35,11 +39,7 @@ package:
   excludeDevDependencies: false
   exclude:
     - README*
-    - src/**
     - package*
-  include:
-    - node_modules/redis/
-    - src/handler.js
 
 custom:
   api:
@@ -88,6 +88,18 @@ functions:
                 Fn::GetAtt:
                   - EventTable
                   - StreamArn
+    vpc:
+      securityGroupIds:
+        - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
+      subnetIds:
+        - Ref: ServerlessPrivateSubnetA
+  createTask:
+    handler: src/lambda-handlers/task/createTask.createTask
+    events:
+      - http:
+          path: "api/${env:API_PATH, self:custom.api.apiPath}"
+          method: get
+          cors: true
     vpc:
       securityGroupIds:
         - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
