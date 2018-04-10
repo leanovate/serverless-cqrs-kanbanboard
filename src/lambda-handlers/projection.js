@@ -1,4 +1,4 @@
-import RedisCache from '../helper/RedisCache';
+import RedisCache from 'helper/RedisCache';
 
 module.exports.projection = async (event, context, callback) => {
     context.callbackWaitsForEmptyEventLoop = false
