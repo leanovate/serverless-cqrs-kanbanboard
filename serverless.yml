@@ -5,7 +5,9 @@ provider:
   runtime: nodejs6.10
   region: eu-central-1
   environment:
-    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}-1
+    DYNAMODB_TABLE_EVENTS: ${self:service}-${opt:stage, self:provider.stage}-events
+    DYNAMODB_TABLE_SNAPSHOTS: ${self:service}-${opt:stage, self:provider.stage}-snapshots
+    DYNAMODB_TABLE_UNDISPATCHED: ${self:service}-${opt:stage, self:provider.stage}-undispatched
     REDIS_HOST:
       "Fn::GetAtt": [ServerlessElasticacheCluster, RedisEndpoint.Address]
     REDIS_PORT:
@@ -22,7 +24,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_EVENTS}"
     - Effect: Allow
       Action:
         - dynamodb:GetRecords
@@ -31,7 +33,7 @@ provider:
         - dynamodb:ListStreams
       Resource:
         Fn::GetAtt: 
-          - EventTable
+          - DynamoTableEvents
           - StreamArn
 
 package:
@@ -50,12 +52,6 @@ custom:
   webpackIncludeModules:  true # enable auto-packing of external modules
 
 functions:
-  hello:
-    handler: src/lambda-handlers/handler.hello
-    events:
-      - http:
-          path: "api/${env:API_PATH, self:custom.api.apiPath}"
-          method: get
   db:
     handler: src/lambda-handlers/db.db
     events:
@@ -71,7 +67,7 @@ functions:
             startingPosition: TRIM_HORIZON
             arn:
                 Fn::GetAtt:
-                  - EventTable
+                  - DynamoTableEvents
                   - StreamArn
   projection:
     handler: src/lambda-handlers/projection.projection
@@ -86,8 +82,19 @@ functions:
             startingPosition: TRIM_HORIZON
             arn:
                 Fn::GetAtt:
-                  - EventTable
+                  - DynamoTableEvents
                   - StreamArn
+    vpc:
+      securityGroupIds:
+        - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
+      subnetIds:
+        - Ref: ServerlessPrivateSubnetA
+  view:
+    handler: src/lambda-handlers/view.view
+    events:
+      - http:
+          path: "api/${env:API_PATH, self:custom.api.apiPath}"
+          method: get
     vpc:
       securityGroupIds:
         - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
@@ -112,25 +119,47 @@ plugins:
 
 resources:
   Resources:
-    EventTable:
+    DynamoTableEvents:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        TableName: ${self:provider.environment.DYNAMODB_TABLE_EVENTS}
         AttributeDefinitions:
-          - AttributeName: timestamp
+          - AttributeName: id
             AttributeType: S
-          - AttributeName: timestampSorted
-            AttributeType: N
         KeySchema:
-          - AttributeName: timestamp
+          - AttributeName: id
             KeyType: HASH
-          - AttributeName: timestampSorted
-            KeyType: RANGE  
         ProvisionedThroughput:
-          ReadCapacityUnits: 5
+          ReadCapacityUnits: 2
           WriteCapacityUnits: 2
         StreamSpecification:
           StreamViewType: NEW_IMAGE
+    SnapshotTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE_SNAPSHOTS}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
+    UndispatchedTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE_UNDISPATCHED}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
     ServerlessVPC:
       Type: AWS::EC2::VPC
       Properties:
