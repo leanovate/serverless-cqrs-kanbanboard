@@ -51,7 +51,7 @@ custom:
 
 functions:
   hello:
-    handler: src/handler.js
+    handler: src/handler.hello
     events:
       - http:
           path: "api/${env:API_PATH, self:custom.api.apiPath}"
@@ -74,7 +74,7 @@ functions:
                   - EventTable
                   - StreamArn
   projection:
-    handler: src/handler.projection
+    handler: src/projection.projection
     events:
         - http:
             path: "api/${env:API_PATH, self:custom.api.apiPath}"
