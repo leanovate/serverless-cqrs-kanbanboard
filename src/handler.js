@@ -1,5 +1,7 @@
 'use strict';
 
+import RedisCache from '../helper/RedisCache'
+
 module.exports.hello = (event, context, callback) => {
   const response = {
     statusCode: 200,
@@ -67,7 +69,24 @@ module.exports.logdb = (event, context, callback) => {
     console.log("id: " + event.Records[0].dynamodb.NewImage.id.S);
 };
 
-module.exports.projection = (event, context, callback) => {
+module.exports.projection = async (event, context, callback) => {
+    context.callbackWaitsForEmptyEventLoop = false
+
+    const CACHE_KEY = 'CACHE_KEY'
+    let res = {}
+    let checkCache = await RedisCache.get(CACHE_KEY)
+    if (checkCache) {
+        res = checkCache
+    } else {
+        await RedisCache.set(CACHE_KEY, {'message': 'Hello World!'})
+        res = {'message': 'Set cache success!'}
+    }
+    const response = {
+        statusCode: 200,
+        body: JSON.stringify(res)
+    }
+    callback(null, response);
+/*
   let client;
   try {
     client = require('redis').createClient(6379, 'readcache.cg0t9q.0001.euc1.cache.amazonaws.com', {no_ready_check: true});
@@ -119,5 +138,5 @@ module.exports.projection = (event, context, callback) => {
     callback(null, response);
 
   }
-
+*/
 }
