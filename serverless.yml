@@ -96,7 +96,7 @@ functions:
       subnetIds:
         - Ref: ServerlessPrivateSubnetA
   view:
-    handler: src/view.view
+    handler: src/lambda-handlers/view.view
     events:
       - http:
           path: "api/${env:API_PATH, self:custom.api.apiPath}"
