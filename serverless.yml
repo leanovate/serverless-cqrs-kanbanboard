@@ -51,16 +51,16 @@ custom:
 
 functions:
   hello:
-    handler: src/handler.hello
+    handler: src/handler.js
     events:
       - http:
-          path: hello/world
+          path: "api/${env:API_PATH, self:custom.api.apiPath}"
           method: get
   db:
-    handler: src/handler.db
+    handler: src/db.db
     events:
       - http:
-          path: hello/db
+          path: "api/${env:API_PATH, self:custom.api.apiPath}"
           method: post
   logdb:
     handler: src/handler.logdb
