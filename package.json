@@ -29,7 +29,8 @@
     "babel-runtime": "^6.26.0",
     "cqrs-domain": "^2.12.2",
     "ioredis": "^3.2.2",
-    "redis": "^2.8.0"
+    "redis": "^2.8.0",
+    "serverless-package-includes": "^1.3.0"
   },
   "devDependencies": {
     "aws-sdk": "^2.222.1",

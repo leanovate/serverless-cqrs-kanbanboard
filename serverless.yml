@@ -42,8 +42,14 @@ package:
   exclude:
     - README*
     - package*
+  include:
+    - src/foo/**/.js
+    - src/foo/**/.json
 
 custom:
+  packageInclude:
+    - '**/*.js'
+    - '**/*.json'
   api:
     apiPath: "{proxy+}"
     apiMethod: "any"
@@ -105,7 +111,7 @@ functions:
     events:
       - http:
           path: "api/${env:API_PATH, self:custom.api.apiPath}"
-          method: get
+          method: post
           cors: true
     vpc:
       securityGroupIds:
@@ -116,6 +122,7 @@ functions:
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serverless-package-includes
 
 resources:
   Resources:
