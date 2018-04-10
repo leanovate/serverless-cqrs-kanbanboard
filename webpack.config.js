@@ -1,11 +1,15 @@
 /*eslint-disable */
-var webpack = require('webpack')
-var nodeExternals = require('webpack-node-externals')
-const slsw = require('serverless-webpack')
+var webpack = require('webpack');
+var nodeExternals = require('webpack-node-externals');
+const slsw = require('serverless-webpack');
+const path = require('path');
 
 module.exports = {
     entry: slsw.lib.entries,
     target: 'node',
+    resolve: {
+        modules: [path.resolve(__dirname, "src"), "node_modules"]
+    },
     module: {
         loaders: [
             {

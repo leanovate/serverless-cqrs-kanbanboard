@@ -53,19 +53,19 @@ custom:
 
 functions:
   hello:
-    handler: src/handler.hello
+    handler: src/lambda-handlers/handler.hello
     events:
       - http:
           path: "api/${env:API_PATH, self:custom.api.apiPath}"
           method: get
   db:
-    handler: src/db.db
+    handler: src/lambda-handlers/db.db
     events:
       - http:
           path: "api/${env:API_PATH, self:custom.api.apiPath}"
           method: post
   logdb:
-    handler: src/handler.logdb
+    handler: src/lambda-handlers/handler.logdb
     events:
         - stream:
             type: dynamodb
@@ -76,7 +76,7 @@ functions:
                   - DynamoTableEvents
                   - StreamArn
   projection:
-    handler: src/projection.projection
+    handler: src/lambda-handlers/projection.projection
     events:
         - http:
             path: "api/${env:API_PATH, self:custom.api.apiPath}"
