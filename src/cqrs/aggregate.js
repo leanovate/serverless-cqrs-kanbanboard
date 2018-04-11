@@ -9,7 +9,7 @@ export class TaskAggregate {
     }
 
     registerCommandHandler(commandHandler) {
-        this.registeredCommandHandlers.set(commandHandler.type, commandHandler.handler);
+        this.registeredCommandHandlers.set(commandHandler.command, commandHandler.handler);
     }
 
     handleCommand(command) {
@@ -20,26 +20,33 @@ export class TaskAggregate {
                 return;
             }
             const event = commandHandler(command);
-            const params = {
-                TableName: process.env.DYNAMODB_TABLE_EVENTS,
-                Item: event,
-            };
+            resolve(event);
+        }).then((event) => {
+            return this.storeEvent(event)
+        });
+    }
 
-            dynamoDb.put(params, (error) => {
-                // handle potential errors
-                if (error) {
-                    console.error(`Error occured during write of event! details: ${JSON.stringify(error)}`);
-                    reject(error);
-                    return;
-                }
-                resolve(event);
-            });
+    storeEvent(event) {
+        console.log(`called storeEvent`);
+        const params = {
+            TableName: process.env.DYNAMODB_TABLE_EVENTS,
+            Item: event,
+        };
+
+        dynamoDb.put(params, (error) => {
+            // handle potential errors
+            if (error) {
+                console.error(`Error occured during write of event! details: ${JSON.stringify(error)}`);
+                reject(error);
+                return;
+            }
+            resolve(event);
         });
     }
 }
 
 export const createTaskCommandHandler = {
-    type: 'createTask',
+    command: 'createTask',
     handler: (command) => {
         // check if task exists
         // if not create event createdTask && return Promise.resolve()
@@ -56,7 +63,7 @@ export const createTaskCommand = (name) => {
     }
 };
 
-const createdTaskEvent = (name) => {
+export const createdTaskEvent = (name) => {
     return {
         type: 'event',
         id: uuid.v4(),
