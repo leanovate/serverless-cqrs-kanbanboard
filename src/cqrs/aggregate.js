@@ -33,7 +33,7 @@ export class TaskAggregate {
             Item: event,
         };
 
-        dynamoDb.put(params, (error) => {
+        return new Promise((resolve, reject) => dynamoDb.put(params, (error) => {
             // handle potential errors
             if (error) {
                 console.error(`Error occured during write of event! details: ${JSON.stringify(error)}`);
@@ -41,7 +41,7 @@ export class TaskAggregate {
                 return;
             }
             resolve(event);
-        });
+        }));
     }
 }
 
