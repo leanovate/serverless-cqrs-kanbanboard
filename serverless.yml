@@ -24,13 +24,35 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - dynamodb:DescribeTable
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_EVENTS}"
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeTable
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_SNAPSHOTS}"
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeTable
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_UNDISPATCHED}"
     - Effect: Allow
       Action:
         - dynamodb:GetRecords
         - dynamodb:GetShardIterator
         - dynamodb:DescribeStream
         - dynamodb:ListStreams
+        - dynamodb:DescribeTable
       Resource:
         Fn::GetAtt: 
           - DynamoTableEvents
@@ -60,6 +82,12 @@ custom:
 functions:
   db:
     handler: src/lambda-handlers/db.db
+    events:
+      - http:
+          path: "api/${env:API_PATH, self:custom.api.apiPath}"
+          method: post
+  listfiles:
+    handler: src/lambda-handlers/handler.listfiles
     events:
       - http:
           path: "api/${env:API_PATH, self:custom.api.apiPath}"

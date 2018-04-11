@@ -5,7 +5,7 @@ let domain = require('cqrs-domain')({
     // can be structured like
     // [set 1](https://github.com/adrai/node-cqrs-domain/tree/master/test/integration/fixture/set1) or
     // [set 2](https://github.com/adrai/node-cqrs-domain/tree/master/test/integration/fixture/set2)
-    domainPath: `${__dirname}/../../foo/lib`,
+    domainPath: `${process.cwd()}/src/cqrs/lib`,
 
     // optional, default is 'commandRejected'
     // will be used if an error occurs and an event should be generated
@@ -67,16 +67,44 @@ let domain = require('cqrs-domain')({
     }
 });
 
+domain.defineCommand({
+    id: 'id',
+    name: 'command',
+    aggregateId: 'payload.id',
+    payload: 'payload',
+    revision: 'head.revision'
+});
+domain.defineEvent({
+    correlationId: 'commandId',
+    id: 'id',
+    name: 'event',
+    aggregateId: 'payload.id',
+    payload: 'payload',
+    revision: 'head.revision'
+});
+let initDone = false;
+
 function domainInit() {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+        let start = Date.now();
+        let end = start;
         domain.init((err, warn) => {
             console.log(`domain.init(): err: ${JSON.stringify(err)} warn: ${JSON.stringify(warn)}`);
+            initDone = true;
             resolve();
+            end = Date.now();
+            console.log(`domain.init elapsed time ${end - start}`);
         });
     })
 }
 
-module.exports.createTask = async (event, context, callback) => {
+if (typeof connectionPending == 'undefined') {
+    let connectionPending = true;
+    //domainInit();
+}
+
+module.exports.createTask = (event, context, callback) => {
+    console.log(`Entered createTask with: ${JSON.stringify(event)}, ${JSON.stringify(context)}`);
     // create a response
     let response = {
         statusCode: 500,
@@ -90,16 +118,30 @@ module.exports.createTask = async (event, context, callback) => {
             aggregate: {name: 'task'},
             payload: payload
         };
+        initDone = true;
+        if (initDone) {
+            try {
+                console.log(`Before domain.handle with commandStub: ${JSON.stringify(commandStub)}`);
+                domain.handle(commandStub, (err, events, aggregateData, metaInfos) => {
+                    console.log(`Executing: ${JSON.stringify(commandStub)} err: ${JSON.stringify(err)} events: ${JSON.stringify(events)} aggregateData: ${JSON.stringify(aggregateData)} metaInfos: ${JSON.stringify(metaInfos)}`);
+                });
 
-        await domainInit();
-
-        domain.handle(commandStub);
-
-        response = {
-            statusCode: 200,
-            body: JSON.stringify(commandStub),
-        };
+                response = {
+                    statusCode: 200,
+                    body: JSON.stringify(commandStub),
+                };
+            } catch (err) {
+                console.log(`Exception during execution: ${JSON.stringify(err)}`);
+            }
+        } else {
+            console.log(`not initialized yet!`);
+            response = {
+                statusCode: 202,
+                body: "not initialized yet!",
+            };
+        }
     }
-
+    console.log(`calling callback`);
     callback(null, response);
+    return
 };

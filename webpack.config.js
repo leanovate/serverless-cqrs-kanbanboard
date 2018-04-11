@@ -1,10 +1,16 @@
 /*eslint-disable */
-var webpack = require('webpack');
-var nodeExternals = require('webpack-node-externals');
+const webpack = require('webpack');
+const nodeExternals = require('webpack-node-externals');
 const slsw = require('serverless-webpack');
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+const alwaysIncludeFiles = ['src/cqrs/**'];
 
 module.exports = {
+    node: {
+        __dirname: true
+    },
     entry: slsw.lib.entries,
     target: 'node',
     resolve: {
@@ -27,5 +33,8 @@ module.exports = {
     externals: [
         {'aws-sdk': 'aws-sdk'},
         nodeExternals()
+    ],
+    plugins: [
+        new CopyWebpackPlugin(alwaysIncludeFiles)
     ]
 }
