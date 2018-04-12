@@ -3,21 +3,26 @@ import {TaskAggregate, createTaskCommandHandler, createTaskCommand} from 'cqrs/a
 const taskAggregate = new TaskAggregate();
 taskAggregate.registerCommandHandler(createTaskCommandHandler);
 
-module.exports.createTask = (event, context, callback) => {
+module.exports.createTask = async (event, context, callback) => {
     console.log(`Entered createTask with: ${JSON.stringify(event)}, ${JSON.stringify(context)}`);
     // create a response
     let response = {
-        statusCode: 200,
-        body: ":-)",
+        statusCode: 202,
+        body: ''
     };
 
     if (event.httpMethod === 'POST') {
         const payload = JSON.parse(event.body);
         const command = createTaskCommand(payload.name);
         console.log(`created createTaskCommand: ${JSON.stringify(command)}`);
-        taskAggregate.handleCommand(command);
+        try {
+            let event = await taskAggregate.handleCommand(command);
+            response.body = JSON.stringify(event);
+        } catch (err) {
+            response.statusCode = 503;
+            response.body = JSON.stringify(err)
+        }
     }
-    console.log(`calling callback`);
     callback(null, response);
     return
 };
