@@ -1,4 +1,4 @@
-import uuid from 'uuid';
+import uuid from 'uuid/v4';
 import AWS from 'aws-sdk/index';
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
@@ -27,7 +27,8 @@ export class TaskAggregate {
     }
 
     storeEvent(event) {
-        console.log(`called storeEvent`);
+        console.log(`called storeEvent with event: ${JSON.stringify(event)}`);
+
         const params = {
             TableName: process.env.DYNAMODB_TABLE_EVENTS,
             Item: event,
@@ -51,7 +52,7 @@ export const createTaskCommandHandler = {
         // check if task exists
         // if not create event createdTask && return Promise.resolve()
         // else return Promise.reject()
-        return createdTaskEvent(command.name);
+        return createdTaskEvent(command.payload);
     }
 };
 
@@ -59,15 +60,18 @@ export const createTaskCommand = (name) => {
     return {
         type: 'command',
         command: 'createTask',
-        name: name,
+        payload: {
+            id: uuid(),
+            name: name
+        },
     }
 };
 
-export const createdTaskEvent = (name) => {
+export const createdTaskEvent = (payload) => {
     return {
         type: 'event',
-        id: uuid.v4(),
+        id: uuid(),
         event: 'createdTask',
-        name: name,
+        payload: payload,
     }
 };

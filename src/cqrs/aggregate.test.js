@@ -1,3 +1,4 @@
+import uuid from 'uuid/v4';
 import {TaskAggregate, createTaskCommandHandler, createTaskCommand, createdTaskEvent} from './aggregate';
 
 test('Expect TaskAggregate to initialize with a empty registeredCommandHandlers map', () => {
@@ -26,16 +27,16 @@ test('Expect TaskAggregate.handleCommand to return a promise for handleCommand',
 test('Expect TaskAggregate.handleCommand to save an event after running command handler successfully', async () => {
     const TASK_NAME = 'foo';
     let storeEventMock = jest.fn();
+    const expectedGeneratedEvent = createdTaskEvent({id: uuid(), name: TASK_NAME});
     TaskAggregate.prototype.storeEvent = storeEventMock;
-
     const ta = new TaskAggregate();
     ta.registerCommandHandler(createTaskCommandHandler);
+
     await ta.handleCommand(createTaskCommand(TASK_NAME));
 
-    const expectedGeneratedEvent = createdTaskEvent(TASK_NAME);
     const actualGeneratedEvent = storeEventMock.mock.calls[0][0];
     expect(actualGeneratedEvent.type).toBe(expectedGeneratedEvent.type);
     expect(actualGeneratedEvent.event).toBe(expectedGeneratedEvent.event);
-    expect(actualGeneratedEvent.name).toBe(expectedGeneratedEvent.name);
-
+    expect(actualGeneratedEvent.payload.name).toBe(expectedGeneratedEvent.payload.name);
+    expect(actualGeneratedEvent.payload.id).toBeDefined();
 });

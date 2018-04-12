@@ -12,7 +12,7 @@ module.exports.createTask = (event, context, callback) => {
     };
 
     if (event.httpMethod === 'POST') {
-        const payload = event.body;
+        const payload = JSON.parse(event.body);
         const command = createTaskCommand(payload.name);
         console.log(`created createTaskCommand: ${JSON.stringify(command)}`);
         taskAggregate.handleCommand(command);

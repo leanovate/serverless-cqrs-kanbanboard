@@ -6,8 +6,6 @@ provider:
   region: eu-central-1
   environment:
     DYNAMODB_TABLE_EVENTS: ${self:service}-${opt:stage, self:provider.stage}-events
-    DYNAMODB_TABLE_SNAPSHOTS: ${self:service}-${opt:stage, self:provider.stage}-snapshots
-    DYNAMODB_TABLE_UNDISPATCHED: ${self:service}-${opt:stage, self:provider.stage}-undispatched
     REDIS_HOST:
       "Fn::GetAtt": [ServerlessElasticacheCluster, RedisEndpoint.Address]
     REDIS_PORT:
@@ -26,26 +24,6 @@ provider:
         - dynamodb:DeleteItem
         - dynamodb:DescribeTable
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_EVENTS}"
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-        - dynamodb:DescribeTable
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_SNAPSHOTS}"
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-        - dynamodb:DescribeTable
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_UNDISPATCHED}"
     - Effect: Allow
       Action:
         - dynamodb:GetRecords
@@ -169,32 +147,6 @@ resources:
           WriteCapacityUnits: 2
         StreamSpecification:
           StreamViewType: NEW_IMAGE
-    SnapshotTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.DYNAMODB_TABLE_SNAPSHOTS}
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 2
-          WriteCapacityUnits: 2
-    UndispatchedTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.DYNAMODB_TABLE_UNDISPATCHED}
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 2
-          WriteCapacityUnits: 2
     ServerlessVPC:
       Type: AWS::EC2::VPC
       Properties:
