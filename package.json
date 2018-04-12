@@ -16,7 +16,7 @@
     "cqrs",
     "aws"
   ],
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/leanovate/serverless-cqrs-kanbanboard/issues"
   },
@@ -30,9 +30,17 @@
     "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
+    "license-checker": "^18.0.0",
     "serverless-webpack": "3.0.0-rc.2",
     "uuid": "^3.2.1",
     "webpack": "3.3.0",
     "webpack-node-externals": "^1.7.2"
+  },
+  "scripts": {
+    "clean": "npm prune",
+    "build": "npm install",
+    "rebuild": "npm run clean && npm run build",
+    "check": "npm run check-licences",
+    "check-licences": "npx license-checker --onlyAllow 'MIT;ISC;Unlicense;Apache 2.0;Apache-2.0;BSD;BSD-2-Clause;BSD-3-Clause;Public Domain;CC0-1.0;CC-BY-3.0' --summary"
   }
 }
