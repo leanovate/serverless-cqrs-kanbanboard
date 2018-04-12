@@ -3,9 +3,6 @@ const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 const slsw = require('serverless-webpack');
 const path = require('path');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-
-const alwaysIncludeFiles = ['src/cqrs/**'];
 
 module.exports = {
     node: {
@@ -16,6 +13,7 @@ module.exports = {
     resolve: {
         modules: [path.resolve(__dirname, "src"), "node_modules"]
     },
+    stats: 'minimal',
     module: {
         loaders: [
             {
@@ -33,8 +31,5 @@ module.exports = {
     externals: [
         {'aws-sdk': 'aws-sdk'},
         nodeExternals()
-    ],
-    plugins: [
-        new CopyWebpackPlugin(alwaysIncludeFiles)
     ]
 }

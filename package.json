@@ -41,7 +41,6 @@
     "babel-jest": "^22.4.3",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
-    "copy-webpack-plugin": "^4.5.1",
     "jest": "^22.4.3",
     "serverless-offline": "^3.16.0",
     "serverless-webpack": "^4.1.0",
