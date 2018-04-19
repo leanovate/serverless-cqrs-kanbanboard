@@ -4,3 +4,10 @@ jspm_packages
 
 # Serverless directories
 .serverless
+
+# jest coverage directory
+coverage/
+
+# IDE project files
+.idea/
+*.iml
