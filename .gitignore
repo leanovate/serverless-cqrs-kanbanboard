@@ -7,6 +7,7 @@ jspm_packages
 
 # jest coverage directory
 coverage/
+.webpack/
 
 # IDE project files
 .idea/

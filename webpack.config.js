@@ -1,35 +1,41 @@
-/*eslint-disable */
-const webpack = require('webpack');
-const nodeExternals = require('webpack-node-externals');
-const slsw = require('serverless-webpack');
 const path = require('path');
+const slsw = require('serverless-webpack');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-    node: {
-        __dirname: true
-    },
     entry: slsw.lib.entries,
     target: 'node',
+    mode: slsw.lib.webpack.isLocal ? 'development': 'production',
+    optimization: {
+        // We no not want to minimize our code.
+        minimize: false
+    },
+    performance: {
+        // Turn off size warnings for entry points
+        hints: false
+    },
     resolve: {
         modules: [path.resolve(__dirname, "src"), "node_modules"]
     },
-    stats: 'minimal',
+    devtool: 'nosources-source-map',
+    externals: [nodeExternals()],
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.js$/,
-                loaders: ['babel-loader'],
-                include: __dirname,
-                exclude: /node_modules/
-            },
-            {
-                test: /\.json$/,
-                loader: 'json-loader'
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: 'babel-loader'
+                    }
+                ],
             }
         ]
     },
-    externals: [
-        {'aws-sdk': 'aws-sdk'},
-        nodeExternals()
-    ]
-}
+    output: {
+        libraryTarget: 'commonjs2',
+        path: path.join(__dirname, '.webpack'),
+        filename: '[name].js',
+        sourceMapFilename: '[file].map'
+    }
+};

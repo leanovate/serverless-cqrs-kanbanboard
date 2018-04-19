@@ -38,13 +38,6 @@ provider:
 
 package:
   individually: true
-  excludeDevDependencies: false
-  exclude:
-    - README*
-    - package*
-  include:
-    - src/foo/**/.js
-    - src/foo/**/.json
 
 custom:
   packageInclude:
@@ -55,20 +48,22 @@ custom:
     apiMethod: "any"
   config:
     CACHE_INSTANCE_SIZE: cache.t2.micro
-  webpackIncludeModules:  true # enable auto-packing of external modules
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
 
 functions:
   db:
     handler: src/lambda-handlers/db.db
     events:
       - http:
-          path: "api/${env:API_PATH, self:custom.api.apiPath}"
+          path: "api/db"
           method: post
   listfiles:
     handler: src/lambda-handlers/handler.listfiles
     events:
       - http:
-          path: "api/${env:API_PATH, self:custom.api.apiPath}"
+          path: "api/listfiles"
           method: post
   logdb:
     handler: src/lambda-handlers/handler.logdb
@@ -85,7 +80,7 @@ functions:
     handler: src/lambda-handlers/projection.projection
     events:
         - http:
-            path: "api/${env:API_PATH, self:custom.api.apiPath}"
+            path: "api/projection"
             method: get
             cors: true
         - stream:
@@ -105,7 +100,7 @@ functions:
     handler: src/lambda-handlers/view.view
     events:
       - http:
-          path: "api/${env:API_PATH, self:custom.api.apiPath}"
+          path: "api/view"
           method: get
     vpc:
       securityGroupIds:
@@ -116,7 +111,7 @@ functions:
     handler: src/lambda-handlers/task/write/index.createTask
     events:
       - http:
-          path: "api/${env:API_PATH, self:custom.api.apiPath}"
+          path: "api/createTask"
           method: post
           cors: true
     vpc:
@@ -128,7 +123,6 @@ functions:
 plugins:
   - serverless-webpack
   - serverless-offline
-  - serverless-package-includes
 
 resources:
   Resources:
