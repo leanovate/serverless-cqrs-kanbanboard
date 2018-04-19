@@ -1,6 +1,7 @@
-import {TaskAggregate, createTaskCommandHandler, createTaskCommand} from 'cqrs/aggregate';
+import {Aggregate} from 'cqrs/aggregate';
+import {createTaskCommandHandler, createTaskCommand} from 'cqrs/task/write';
 
-const taskAggregate = new TaskAggregate();
+const taskAggregate = new Aggregate();
 taskAggregate.registerCommandHandler(createTaskCommandHandler);
 
 module.exports.createTask = async (event, context, callback) => {

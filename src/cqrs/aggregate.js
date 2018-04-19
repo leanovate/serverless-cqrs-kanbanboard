@@ -1,9 +1,8 @@
-import uuid from 'uuid/v4';
 import AWS from 'aws-sdk/index';
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-export class TaskAggregate {
+export class Aggregate {
     constructor() {
         this.registeredCommandHandlers = new Map();
     }
@@ -37,7 +36,7 @@ export class TaskAggregate {
         return new Promise((resolve, reject) => dynamoDb.put(params, (error) => {
             // handle potential errors
             if (error) {
-                console.error(`Error occured during write of event! details: ${JSON.stringify(error)}`);
+                console.error(`Error occurred during write of event! details: ${JSON.stringify(error)}`);
                 reject(error);
                 return;
             }
@@ -46,32 +45,3 @@ export class TaskAggregate {
     }
 }
 
-export const createTaskCommandHandler = {
-    command: 'createTask',
-    handler: (command) => {
-        // check if task exists
-        // if not create event createdTask && return Promise.resolve()
-        // else return Promise.reject()
-        return createdTaskEvent(command.payload);
-    }
-};
-
-export const createTaskCommand = (name) => {
-    return {
-        type: 'command',
-        command: 'createTask',
-        payload: {
-            id: uuid(),
-            name: name
-        },
-    }
-};
-
-export const createdTaskEvent = (payload) => {
-    return {
-        type: 'event',
-        id: uuid(),
-        event: 'createdTask',
-        payload: payload,
-    }
-};

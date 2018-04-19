@@ -113,7 +113,7 @@ functions:
       subnetIds:
         - Ref: ServerlessPrivateSubnetA
   createTask:
-    handler: src/lambda-handlers/task/createTask.createTask
+    handler: src/lambda-handlers/task/write/index.createTask
     events:
       - http:
           path: "api/${env:API_PATH, self:custom.api.apiPath}"
