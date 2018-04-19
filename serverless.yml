@@ -53,49 +53,6 @@ custom:
     includeModules: true
 
 functions:
-  db:
-    handler: src/lambda-handlers/db.db
-    events:
-      - http:
-          path: "api/db"
-          method: post
-  listfiles:
-    handler: src/lambda-handlers/handler.listfiles
-    events:
-      - http:
-          path: "api/listfiles"
-          method: post
-  logdb:
-    handler: src/lambda-handlers/handler.logdb
-    events:
-        - stream:
-            type: dynamodb
-            batchSize: 20
-            startingPosition: TRIM_HORIZON
-            arn:
-                Fn::GetAtt:
-                  - DynamoTableEvents
-                  - StreamArn
-  projection:
-    handler: src/lambda-handlers/projection.projection
-    events:
-        - http:
-            path: "api/projection"
-            method: get
-            cors: true
-        - stream:
-            type: dynamodb
-            batchSize: 20
-            startingPosition: TRIM_HORIZON
-            arn:
-                Fn::GetAtt:
-                  - DynamoTableEvents
-                  - StreamArn
-    vpc:
-      securityGroupIds:
-        - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
-      subnetIds:
-        - Ref: ServerlessPrivateSubnetA
   view:
     handler: src/lambda-handlers/view.view
     events:
@@ -119,7 +76,22 @@ functions:
         - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
       subnetIds:
         - Ref: ServerlessPrivateSubnetA
-
+  task-projections-addReadableTask:
+    handler: src/lambda-handlers/task/projections.addReadableTask
+    events:
+        - stream:
+            type: dynamodb
+            batchSize: 20
+            startingPosition: TRIM_HORIZON
+            arn:
+                Fn::GetAtt:
+                  - DynamoTableEvents
+                  - StreamArn
+    vpc:
+      securityGroupIds:
+        - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
+      subnetIds:
+        - Ref: ServerlessPrivateSubnetA
 plugins:
   - serverless-webpack
   - serverless-offline
