@@ -1,4 +1,22 @@
 {
-  "plugins": ["transform-runtime"],
-  "presets": ["es2015", "stage-3"]
+  "presets": [
+    [
+      "env",
+      {
+        "modules": false
+      }
+    ]
+  ],
+  "env": {
+    "test": {
+      "presets": [
+        [
+          "env",
+          {
+            "modules": "commonjs"
+          }
+        ]
+      ]
+    }
+  }
 }
