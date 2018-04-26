@@ -5,10 +5,15 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 export class Aggregate {
     constructor() {
         this.registeredCommandHandlers = new Map();
+        this.registeredEventHandlers = new Map();
     }
 
     registerCommandHandler(commandHandler) {
         this.registeredCommandHandlers.set(commandHandler.command, commandHandler.handler);
+    }
+
+    registerEventHandler(eventHandler) {
+        this.registeredEventHandlers.set(eventHandler.event, eventHandler.handler);
     }
 
     handleCommand(command) {
@@ -42,6 +47,19 @@ export class Aggregate {
             }
             resolve(event);
         }));
+    }
+
+    handleEvent(event) {
+        const eventToHandle = event;
+        return new Promise((resolve, reject) => {
+            let eventHandler = this.registeredEventHandlers.get(eventToHandle.event);
+            if (!!!eventHandler) {
+                reject("No event handler found!");
+                return;
+            }
+            const event = eventHandler(eventToHandle);
+            resolve(event);
+        });
     }
 }
 
