@@ -27,6 +27,9 @@ export class Aggregate {
             resolve(event);
         }).then((event) => {
             return this.storeEvent(event)
+        }).then((event) => {
+            this.handleEvent(event);
+            return event;
         });
     }
 
