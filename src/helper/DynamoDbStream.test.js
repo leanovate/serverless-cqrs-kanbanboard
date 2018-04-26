@@ -1,5 +1,10 @@
-import {recordsToEvents} from 'lambda-handlers/task/projections';
+import {recordsToEvents} from './DynamoDbStream';
 
+const EVENT_ID = "5228bfda-11b0-423c-9bb8-173004825149";
+const EVENT_EVENT = "createTask";
+const EVENT_TYPE = "event";
+const EVENT_PAYLOAD_NAME = "foo";
+const EVENT_PAYLOAD_ID = "0f19b5c0-1269-4f7f-b8df-b23a23c16d8d";
 const eventFixture = {
     "Records": [
         {
@@ -12,28 +17,28 @@ const eventFixture = {
                 "ApproximateCreationDateTime": 1524151440,
                 "Keys": {
                     "id": {
-                        "S": "5228bfda-11b0-423c-9bb8-173004825149"
+                        "S": `${EVENT_ID}`
                     }
                 },
                 "NewImage": {
                     "payload": {
                         "M": {
                             "name": {
-                                "S": "foo"
+                                "S": `${EVENT_PAYLOAD_NAME}`
                             },
                             "id": {
-                                "S": "0f19b5c0-1269-4f7f-b8df-b23a23c16d8d"
+                                "S": `${EVENT_PAYLOAD_ID}`
                             }
                         }
                     },
                     "id": {
-                        "S": "5228bfda-11b0-423c-9bb8-173004825149"
+                        "S": `${EVENT_ID}`
                     },
                     "event": {
-                        "S": "createdTask"
+                        "S": `${EVENT_EVENT}`
                     },
                     "type": {
-                        "S": "event"
+                        "S": `${EVENT_TYPE}`
                     }
                 },
                 "SequenceNumber": "400000000000714578120",
@@ -46,6 +51,10 @@ const eventFixture = {
 };
 
 test('Expect recordsToEvents to return a list of events (happy path)', () => {
-    console.log(JSON.stringify(recordsToEvents(eventFixture.Records)))
-    expect(recordsToEvents(eventFixture.Records)).toHaveLength(1);
+    const event = recordsToEvents(eventFixture.Records);
+    expect(EVENT_ID).toBe(EVENT_ID);
+    expect(EVENT_EVENT).toBe(EVENT_EVENT);
+    expect(EVENT_TYPE).toBe(EVENT_TYPE);
+    expect(EVENT_PAYLOAD_NAME).toBe(EVENT_PAYLOAD_NAME);
+    expect(EVENT_PAYLOAD_ID).toBe(EVENT_PAYLOAD_ID);
 });

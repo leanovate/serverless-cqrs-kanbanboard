@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import {recordsToEvents} from 'helper/DynamoDbStream';
 
 export const addReadableTask = async (event, context, callback) => {
     console.log(`addReadableTask event: ${JSON.stringify(event)}`);
@@ -20,6 +20,7 @@ export const addReadableTask = async (event, context, callback) => {
     };
     */
 
+
     if (!!!event.Records) {
         callback(null, null);
         return;
@@ -30,11 +31,4 @@ export const addReadableTask = async (event, context, callback) => {
     console.log(`events: ${JSON.stringify(events)}`);
 
     callback(null, null);
-};
-
-export const recordsToEvents = (records) => {
-    return records
-        .filter((record) => !!(record.dynamodb) && !!(record.dynamodb.NewImage))
-        .map((record) => record.dynamodb.NewImage)
-        .map((newImage) => AWS.DynamoDB.Converter.output(newImage));
 };
