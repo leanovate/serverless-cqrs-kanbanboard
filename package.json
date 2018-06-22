@@ -25,6 +25,9 @@
     "url": "https://github.com/leanovate/serverless-cqrs-kanbanboard/issues"
   },
   "homepage": "https://github.com/leanovate/serverless-cqrs-kanbanboard#readme",
+  "engines": {
+    "node": ">=8 <10"
+  },
   "dependencies": {
     "aws-sdk": "^2.222.1",
     "babel-plugin-transform-async-generator-functions": "^6.24.1",
